@@ -1,111 +1,125 @@
 /**
  * =====================================================
- * Use Case 2: Basic Room Types & Static Availability
- * Book My Stay Application
- * =====================================================
+ * CLASS - RoomInventory
+ * Use Case 3: Centralized Room Inventory Management
+ *
+ * This class acts as the single source of truth for room
+ * availability in the hotel.
+ *
+ * Room pricing and characteristics are obtained from Room objects,
+ * not duplicated here.
+ *
+ * This creates multiple sources of truth and
+ * keeps responsibilities clearly separated.
+ *
+ * @version 3.1
  */
+import java.util.HashMap;
+
+class RoomInventory {
+
+    // Maps room name to available count
+    private HashMap<String, Integer> inventory;
+
+    // Constructor initializes inventory with fixed availability
+    public RoomInventory() {
+        inventory = new HashMap<>();
+        inventory.put("Single Room", 5);
+        inventory.put("Double Room", 3);
+        inventory.put("Suite Room", 2);
+    }
+
+    // Returns current availability for room type
+    public int getAvailability(String roomType) {
+        return inventory.getOrDefault(roomType, 0);
+    }
+
+    // Updates availability count for a room type
+    public void updateAvailability(String roomType, int count) {
+        inventory.put(roomType, count);
+    }
+
+    // Prints current inventory status to console
+    public void displayInventory() {
+        System.out.println("\nHotel Room Inventory Status");
+        for (String roomType : inventory.keySet()) {
+            System.out.println(roomType + ": " + inventory.get(roomType));
+        }
+    }
+}
 
 /**
- * ABSTRACT CLASS - Room
- * Represents a generic hotel room.
- * @version 2.1
+ * =====================================================
+ * MAIN CLASS - UseCase3InventorySetup
+ *
+ * Use Case 3: Centralized Room Inventory Management
+ *
+ * Demonstrates room availability management using centralized HashMap.
+ * @version 3.1
  */
 abstract class Room {
 
-    // Number of beds available in the room
     protected int numberOfBeds;
-
-    // Total size of the room in square feet
     protected int squareFeet;
-
-    // Price charged per night
     protected double pricePerNight;
 
-    // Constructor used by child classes
     public Room(int numberOfBeds, int squareFeet, double pricePerNight) {
         this.numberOfBeds = numberOfBeds;
         this.squareFeet = squareFeet;
         this.pricePerNight = pricePerNight;
     }
 
-    // Display room details
     public void displayRoomDetails() {
         System.out.println("Beds: " + numberOfBeds);
-        System.out.println("Room Size: " + squareFeet + " sq.ft");
-        System.out.println("Price per Night: $" + pricePerNight);
+        System.out.println("Size: " + squareFeet + " sqft");
+        System.out.println("Price per night: $" + pricePerNight);
     }
 }
 
-
-/**
- * Single Room Class
- * @version 2.0
- */
 class SingleRoom extends Room {
-
     public SingleRoom() {
-        super(1, 200, 80.0);
+        super(1, 200, 150.0);
     }
 }
 
-
-/**
- * Double Room Class
- * @version 2.0
- */
 class DoubleRoom extends Room {
-
     public DoubleRoom() {
-        super(2, 350, 120.0);
+        super(2, 350, 250.0);
     }
 }
 
-
-/**
- * Suite Room Class
- * @version 2.0
- */
 class SuiteRoom extends Room {
-
     public SuiteRoom() {
-        super(3, 500, 250.0);
+        super(3, 500, 500.0);
     }
 }
 
-
-/**
- * Main Application Class
- */
 public class BookMyStay {
 
     public static void main(String[] args) {
-
         System.out.println("=================================");
         System.out.println("       Book My Stay App");
-        System.out.println("=================================\n");
+        System.out.println("=================================");
 
-        // Create room objects (Polymorphism)
+        // Initialize rooms
         Room singleRoom = new SingleRoom();
         Room doubleRoom = new DoubleRoom();
         Room suiteRoom = new SuiteRoom();
 
-        // Static availability variables
-        int singleRoomAvailability = 5;
-        int doubleRoomAvailability = 3;
-        int suiteRoomAvailability = 2;
-
-        System.out.println("Single Room Details:");
+        // Display room details
+        System.out.println("\nSingle Room:");
         singleRoom.displayRoomDetails();
-        System.out.println("Available Rooms: " + singleRoomAvailability);
-        System.out.println();
 
-        System.out.println("Double Room Details:");
+        System.out.println("\nDouble Room:");
         doubleRoom.displayRoomDetails();
-        System.out.println("Available Rooms: " + doubleRoomAvailability);
-        System.out.println();
 
-        System.out.println("Suite Room Details:");
+        System.out.println("\nSuite Room:");
         suiteRoom.displayRoomDetails();
-        System.out.println("Available Rooms: " + suiteRoomAvailability);
+
+        // Initialize centralized inventory
+        RoomInventory inventory = new RoomInventory();
+
+        // Show inventory status
+        inventory.displayInventory();
     }
 }
