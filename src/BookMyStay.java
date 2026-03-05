@@ -1,104 +1,64 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.Queue;
 
-class Room {
-    private String type;
-    private double price;
-    private String amenities;
+class Reservation {
+    private String guestName;
+    private String roomType;
 
-    public Room(String type, double price, String amenities) {
-        this.type = type;
-        this.price = price;
-        this.amenities = amenities;
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
     }
 
-    public String getType() {
-        return type;
+    public String getGuestName() {
+        return guestName;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public String getAmenities() {
-        return amenities;
-    }
-
-    public void displayDetails() {
-        System.out.println("Room Type: " + type);
-        System.out.println("Price per night: $" + price);
-        System.out.println("Amenities: " + amenities);
+    public String getRoomType() {
+        return roomType;
     }
 }
 
-class RoomInventory {
-    private Map<String, Integer> inventory;
+class BookingRequestQueue {
+    private Queue<Reservation> requestQueue;
 
-    public RoomInventory() {
-        inventory = new HashMap<>();
+    public BookingRequestQueue() {
+        requestQueue = new LinkedList<>();
     }
 
-    public void addRoomType(String roomType, int count) {
-        inventory.put(roomType, count);
+    public void addRequest(Reservation reservation) {
+        requestQueue.offer(reservation);
     }
 
-    public int getAvailableRooms(String roomType) {
-        return inventory.getOrDefault(roomType, 0);
+    public Reservation getNextRequest() {
+        return requestQueue.poll();
     }
 
-    public Map<String, Integer> getInventorySnapshot() {
-        return new HashMap<>(inventory);
-    }
-}
-
-class RoomSearchService {
-    private RoomInventory inventory;
-    private Map<String, Room> roomCatalog;
-
-    public RoomSearchService(RoomInventory inventory, Map<String, Room> roomCatalog) {
-        this.inventory = inventory;
-        this.roomCatalog = roomCatalog;
-    }
-
-    public void searchAvailableRooms() {
-        System.out.println("Available Rooms:\n");
-
-        Map<String, Integer> snapshot = inventory.getInventorySnapshot();
-
-        for (String roomType : snapshot.keySet()) {
-            int available = snapshot.get(roomType);
-
-            if (available > 0 && roomCatalog.containsKey(roomType)) {
-                Room room = roomCatalog.get(roomType);
-                room.displayDetails();
-                System.out.println("Available Rooms: " + available);
-                System.out.println("---------------------------");
-            }
-        }
+    public boolean hasPendingRequests() {
+        return !requestQueue.isEmpty();
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        RoomInventory inventory = new RoomInventory();
-        inventory.addRoomType("Single Room", 5);
-        inventory.addRoomType("Double Room", 0);
-        inventory.addRoomType("Suite Room", 2);
+        System.out.println("Booking Request Queue:");
 
-        Map<String, Room> roomCatalog = new HashMap<>();
+        BookingRequestQueue bookingQueue = new BookingRequestQueue();
 
-        roomCatalog.put("Single Room",
-                new Room("Single Room", 100.0, "WiFi, TV, Queen Bed"));
+        Reservation r1 = new Reservation("Neha", "Single");
+        Reservation r2 = new Reservation("Suhas", "Double");
+        Reservation r3 = new Reservation("Yamrath", "Suite");
 
-        roomCatalog.put("Double Room",
-                new Room("Double Room", 150.0, "WiFi, TV, King Bed, Balcony"));
+        bookingQueue.addRequest(r1);
+        bookingQueue.addRequest(r2);
+        bookingQueue.addRequest(r3);
 
-        roomCatalog.put("Suite Room",
-                new Room("Suite Room", 300.0, "WiFi, TV, King Bed, Jacuzzi, Sea View"));
-
-        RoomSearchService searchService =
-                new RoomSearchService(inventory, roomCatalog);
-
-        searchService.searchAvailableRooms();
+        while (bookingQueue.hasPendingRequests()) {
+            Reservation next = bookingQueue.getNextRequest();
+            System.out.println("Processing Request -> Guest: "
+                    + next.getGuestName()
+                    + ", Room Type: "
+                    + next.getRoomType());
+        }
     }
 }
