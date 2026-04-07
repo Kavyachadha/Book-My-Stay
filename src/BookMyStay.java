@@ -1,64 +1,46 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+
+// UC8: Booking History & Reporting
 
 class Reservation {
-    private String guestName;
-    private String roomType;
+    String guestName;
+    String roomType;
 
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
+    Reservation(String name, String type) {
+        guestName = name;
+        roomType = type;
     }
 }
 
-class BookingRequestQueue {
-    private Queue<Reservation> requestQueue;
+class BookingHistory {
+    List<Reservation> history = new ArrayList<>();
 
-    public BookingRequestQueue() {
-        requestQueue = new LinkedList<>();
+    public void add(Reservation r) {
+        history.add(r);
     }
 
-    public void addRequest(Reservation reservation) {
-        requestQueue.offer(reservation);
-    }
+    public void printReport() {
+        Map<String, Integer> count = new HashMap<>();
 
-    public Reservation getNextRequest() {
-        return requestQueue.poll();
-    }
+        for (Reservation r : history) {
+            count.put(r.roomType, count.getOrDefault(r.roomType, 0) + 1);
+        }
 
-    public boolean hasPendingRequests() {
-        return !requestQueue.isEmpty();
+        System.out.println("Booking Report:");
+        for (String type : count.keySet()) {
+            System.out.println(type + " rooms booked: " + count.get(type));
+        }
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
+        BookingHistory bh = new BookingHistory();
 
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        bh.add(new Reservation("A", "Single"));
+        bh.add(new Reservation("B", "Double"));
+        bh.add(new Reservation("C", "Single"));
 
-        Reservation r1 = new Reservation("Neha", "Single");
-        Reservation r2 = new Reservation("Suhas", "Double");
-        Reservation r3 = new Reservation("Yamrath", "Suite");
-
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
-
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            System.out.println("Processing Request -> Guest: "
-                    + next.getGuestName()
-                    + ", Room Type: "
-                    + next.getRoomType());
-        }
+        bh.printReport();
     }
 }
