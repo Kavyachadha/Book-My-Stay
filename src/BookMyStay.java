@@ -1,64 +1,51 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+
+// UC7: Add-On Service Selection
 
 class Reservation {
-    private String guestName;
-    private String roomType;
+    String guestName;
+    List<String> addOns = new ArrayList<>();
 
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
+    Reservation(String name) {
+        this.guestName = name;
     }
 }
 
-class BookingRequestQueue {
-    private Queue<Reservation> requestQueue;
+class AddOnService {
+    private Map<String, Integer> services = new HashMap<>();
 
-    public BookingRequestQueue() {
-        requestQueue = new LinkedList<>();
+    AddOnService() {
+        services.put("Breakfast", 500);
+        services.put("Spa", 1500);
+        services.put("Airport Pickup", 800);
     }
 
-    public void addRequest(Reservation reservation) {
-        requestQueue.offer(reservation);
+    public void addService(Reservation r, String service) {
+        if (services.containsKey(service)) {
+            r.addOns.add(service);
+        }
     }
 
-    public Reservation getNextRequest() {
-        return requestQueue.poll();
-    }
-
-    public boolean hasPendingRequests() {
-        return !requestQueue.isEmpty();
+    public void printBill(Reservation r) {
+        int total = 0;
+        System.out.println("Add-ons for " + r.guestName);
+        for (String s : r.addOns) {
+            int price = services.get(s);
+            total += price;
+            System.out.println(s + " - " + price);
+        }
+        System.out.println("Total Add-on Cost: " + total);
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
+        Reservation r = new Reservation("Abhi");
 
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        AddOnService service = new AddOnService();
+        service.addService(r, "Breakfast");
+        service.addService(r, "Spa");
 
-        Reservation r1 = new Reservation("Neha", "Single");
-        Reservation r2 = new Reservation("Suhas", "Double");
-        Reservation r3 = new Reservation("Yamrath", "Suite");
-
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
-
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            System.out.println("Processing Request -> Guest: "
-                    + next.getGuestName()
-                    + ", Room Type: "
-                    + next.getRoomType());
-        }
+        service.printBill(r);
     }
 }
