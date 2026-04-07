@@ -1,64 +1,52 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
-class Reservation {
-    private String guestName;
-    private String roomType;
+// UC11: Concurrent Booking Simulation
 
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
+class Inventory {
+    private int rooms = 2;
+
+    public synchronized boolean bookRoom(String guest) {
+        if (rooms > 0) {
+            System.out.println(guest + " is booking...");
+            rooms--;
+            System.out.println("Booking confirmed for " + guest);
+            return true;
+        } else {
+            System.out.println("No rooms available for " + guest);
+            return false;
+        }
     }
 
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
+    public void display() {
+        System.out.println("Rooms left: " + rooms);
     }
 }
 
-class BookingRequestQueue {
-    private Queue<Reservation> requestQueue;
+class BookingThread extends Thread {
+    Inventory inventory;
+    String guest;
 
-    public BookingRequestQueue() {
-        requestQueue = new LinkedList<>();
+    BookingThread(Inventory inv, String guest) {
+        this.inventory = inv;
+        this.guest = guest;
     }
 
-    public void addRequest(Reservation reservation) {
-        requestQueue.offer(reservation);
-    }
-
-    public Reservation getNextRequest() {
-        return requestQueue.poll();
-    }
-
-    public boolean hasPendingRequests() {
-        return !requestQueue.isEmpty();
+    public void run() {
+        inventory.bookRoom(guest);
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
 
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        Inventory inv = new Inventory();
 
-        Reservation r1 = new Reservation("Neha", "Single");
-        Reservation r2 = new Reservation("Suhas", "Double");
-        Reservation r3 = new Reservation("Yamrath", "Suite");
+        Thread t1 = new BookingThread(inv, "Abhi");
+        Thread t2 = new BookingThread(inv, "Kavya");
+        Thread t3 = new BookingThread(inv, "Rahul");
 
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
-
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            System.out.println("Processing Request -> Guest: "
-                    + next.getGuestName()
-                    + ", Room Type: "
-                    + next.getRoomType());
-        }
+        t1.start();
+        t2.start();
+        t3.start();
     }
 }
