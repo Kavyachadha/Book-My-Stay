@@ -1,64 +1,42 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+
+// UC9: Error Handling & Validation
 
 class Reservation {
-    private String guestName;
-    private String roomType;
+    String guestName;
+    String roomType;
 
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
+    Reservation(String name, String type) {
+        this.guestName = name;
+        this.roomType = type;
     }
 }
 
-class BookingRequestQueue {
-    private Queue<Reservation> requestQueue;
+class BookingService {
 
-    public BookingRequestQueue() {
-        requestQueue = new LinkedList<>();
-    }
+    public void book(Reservation r) {
+        try {
+            if (r.guestName == null || r.guestName.isEmpty())
+                throw new Exception("Invalid guest name");
 
-    public void addRequest(Reservation reservation) {
-        requestQueue.offer(reservation);
-    }
+            if (!Arrays.asList("Single", "Double", "Suite").contains(r.roomType))
+                throw new Exception("Invalid room type");
 
-    public Reservation getNextRequest() {
-        return requestQueue.poll();
-    }
+            System.out.println("Booking successful for " + r.guestName);
 
-    public boolean hasPendingRequests() {
-        return !requestQueue.isEmpty();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
 
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        BookingService service = new BookingService();
 
-        Reservation r1 = new Reservation("Neha", "Single");
-        Reservation r2 = new Reservation("Suhas", "Double");
-        Reservation r3 = new Reservation("Yamrath", "Suite");
-
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
-
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            System.out.println("Processing Request -> Guest: "
-                    + next.getGuestName()
-                    + ", Room Type: "
-                    + next.getRoomType());
-        }
+        service.book(new Reservation("", "Single"));      // error
+        service.book(new Reservation("Abhi", "Luxury"));  // error
+        service.book(new Reservation("Kavya", "Suite"));  // success
     }
 }
