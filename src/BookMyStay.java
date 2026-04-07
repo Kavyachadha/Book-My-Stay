@@ -1,64 +1,70 @@
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+
+// UC10: Cancellation & Inventory Rollback
 
 class Reservation {
-    private String guestName;
-    private String roomType;
+    String guestName;
+    String roomType;
 
-    public Reservation(String guestName, String roomType) {
-        this.guestName = guestName;
-        this.roomType = roomType;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getRoomType() {
-        return roomType;
+    Reservation(String name, String type) {
+        guestName = name;
+        roomType = type;
     }
 }
 
-class BookingRequestQueue {
-    private Queue<Reservation> requestQueue;
+class Inventory {
+    Map<String, Integer> rooms = new HashMap<>();
 
-    public BookingRequestQueue() {
-        requestQueue = new LinkedList<>();
+    Inventory() {
+        rooms.put("Single", 2);
+        rooms.put("Double", 2);
     }
 
-    public void addRequest(Reservation reservation) {
-        requestQueue.offer(reservation);
+    void book(String type) {
+        rooms.put(type, rooms.get(type) - 1);
     }
 
-    public Reservation getNextRequest() {
-        return requestQueue.poll();
+    void rollback(String type) {
+        rooms.put(type, rooms.get(type) + 1);
     }
 
-    public boolean hasPendingRequests() {
-        return !requestQueue.isEmpty();
+    void display() {
+        System.out.println(rooms);
+    }
+}
+
+class BookingService {
+    Map<String, Reservation> confirmed = new HashMap<>();
+    Inventory inventory;
+
+    BookingService(Inventory inv) {
+        inventory = inv;
+    }
+
+    void confirm(String id, Reservation r) {
+        inventory.book(r.roomType);
+        confirmed.put(id, r);
+    }
+
+    void cancel(String id) {
+        if (confirmed.containsKey(id)) {
+            Reservation r = confirmed.remove(id);
+            inventory.rollback(r.roomType);
+            System.out.println("Booking cancelled for " + r.guestName);
+        }
     }
 }
 
 public class BookMyStay {
     public static void main(String[] args) {
-        System.out.println("Booking Request Queue:");
 
-        BookingRequestQueue bookingQueue = new BookingRequestQueue();
+        Inventory inv = new Inventory();
+        BookingService service = new BookingService(inv);
 
-        Reservation r1 = new Reservation("Neha", "Single");
-        Reservation r2 = new Reservation("Suhas", "Double");
-        Reservation r3 = new Reservation("Yamrath", "Suite");
+        service.confirm("1", new Reservation("Abhi", "Single"));
+        inv.display();
 
-        bookingQueue.addRequest(r1);
-        bookingQueue.addRequest(r2);
-        bookingQueue.addRequest(r3);
-
-        while (bookingQueue.hasPendingRequests()) {
-            Reservation next = bookingQueue.getNextRequest();
-            System.out.println("Processing Request -> Guest: "
-                    + next.getGuestName()
-                    + ", Room Type: "
-                    + next.getRoomType());
-        }
+        service.cancel("1");
+        inv.display();
     }
 }
